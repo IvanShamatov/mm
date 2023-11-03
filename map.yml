@@ -4,6 +4,15 @@ children:
     children:
       - title: "Grandchild 1"
       - title: "Grandchild 2"
+      - title: "Grandchild 3"
   - title: "Child 2"
   - title: "Child 3"
   - title: "Child 4"
+  - title: "Child 5"
+    children:
+      - title: "Grand5Child1"
+        children:
+          - title: "wow"
+          - title: "such mindmap"
+          - title: "so layout"
+      - title: "Grand5Child2"

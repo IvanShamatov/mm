@@ -1,29 +1,41 @@
-# The Layout class
 class Layout
-  def calculate_positions(map, width:, height:)
-    calculate_node_positions(map.root, width/2, height/2, 360, 0)
+  attr_reader :positions
+
+  def initialize(canvas_width, canvas_height)
+    @canvas_width = canvas_width
+    @canvas_height = canvas_height
+    @positions = {}
+    @initial_radius = 400
+  end
+
+  def calculate_positions(mindmap)
+    @mindmap = mindmap
+    root_pos = [@canvas_width / 2, @canvas_height / 2]
+    place_node(@mindmap.root, root_pos, 0)
+    @positions
   end
 
   private
 
-  def calculate_node_positions(node, center_x, center_y, angle_available, depth)
-    node.position = [center_x, center_y]
-    return if node.children.empty?
-    @node_size = 150
+  def place_node(node, position, depth)
+    node.position = position
+    @positions[node] = position
 
-    radius = @node_size * depth
-    angle_per_child = angle_available / node.children.size
-    node.children.each_with_index do |child, index|
-      angle = angle_per_child * index
-      x = center_x + radius * Math.cos(to_radians(angle))
-      y = center_y + radius * Math.sin(to_radians(angle))
-      child.position = [x, y]
-      # Increase the angle available and radius for each subsequent depth to avoid overlap
-      calculate_node_positions(child, x, y, angle_per_child, depth + 1)
+    child_nodes = node.children
+    if child_nodes.any?
+      angle_increment = 360.0 / child_nodes.count
+      radius = @initial_radius / (depth + 1)
+
+      child_nodes.each_with_index do |child, index|
+        angle = angle_increment * index
+        x = position[0] + radius * Math.cos(deg_to_rad(angle))
+        y = position[1] + radius * Math.sin(deg_to_rad(angle))
+        place_node(child, [x, y], depth + 1)
+      end
     end
   end
 
-  def to_radians(degrees)
+  def deg_to_rad(degrees)
     degrees * Math::PI / 180
   end
 end

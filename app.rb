@@ -1,6 +1,6 @@
 # Define the main application class
 class App
-  def initialize(layout: Layout.new)
+  def initialize(layout:)
     @root = TkRoot.new { title "Ruby Mind Map" }
     @screen_width = @root.winfo_screenwidth
     @screen_height = @root.winfo_screenheight
@@ -9,12 +9,12 @@ class App
     @canvas = TkCanvas.new(@root) do
       pack(fill: 'both', expand: true)
     end
-    @layout = layout
+    @layout = layout.new(@screen_width, @screen_height)
   end
 
   def load_map(map)
     @map = map
-    @layout.calculate_positions(map, width: @screen_width, height: @screen_height)
+    @layout.calculate_positions(map)
     draw
   end
 

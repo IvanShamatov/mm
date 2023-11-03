@@ -17,7 +17,7 @@ yaml_file = 'map.yml'
 data = YAML.load_file(yaml_file)
 map = Mindmap.new(data)
 
-app = App.new(layout: Layout.new)
+app = App.new(layout: Layout)
 app.load_map(map)
 app.run
 
