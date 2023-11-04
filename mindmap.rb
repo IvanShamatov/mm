@@ -1,11 +1,13 @@
 class Mindmap
   class Node
-    attr_accessor :title, :children, :position
+    attr_accessor :title, :children, :position, :parent, :depth
 
-    def initialize(title)
+    def initialize(title, parent = nil, depth = 0)
       @title = title
       @children = []
       @position = []
+      @parent = parent
+      @depth = depth
     end
 
     def add_child(child_node)
@@ -21,11 +23,11 @@ class Mindmap
 
   private
 
-  def create_node(hash)
-    node = Node.new(hash["title"])
+  def create_node(hash, parent: nil, depth: 0)
+    node = Node.new(hash["title"], parent, depth)
     if hash["children"]
       hash["children"].each do |child_hash|
-        child_node = create_node(child_hash)
+        child_node = create_node(child_hash, parent: node, depth: depth + 1)
         node.add_child(child_node)
       end
     end

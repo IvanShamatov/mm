@@ -6,6 +6,8 @@ class App
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
 
+    @font = TkFont.new(family: 'Helvetica', size: 14)
+
     @canvas = TkCanvas.new(@root) do
       pack(fill: 'both', expand: true)
     end
@@ -19,38 +21,47 @@ class App
   end
 
   def draw
+    draw_lines(@map.root)
     draw_nodes(@map.root)
   end
 
-  def draw_nodes(node, parent_coords = nil)
-    # Draw this node
-    draw_node(node.title, node.position, parent_coords)
-
-    # Recursively draw children nodes
+  def draw_lines(node)
+    x, y = node.position
     node.children.each do |child|
-      draw_nodes(child, node.position)
+      chx, chy = child.position
+      @canvas.create_line(x, y, chx, chy)
+
+      draw_lines(child) if child.children
     end
   end
 
-  def draw_node(title, position, parent_position = nil)
-    x, y = position
+  def draw_nodes(node, parent = nil)
+    # Draw this node
+    draw_node(node, parent)
+
+    # Recursively draw children nodes
+    node.children.each do |child|
+      draw_nodes(child, node)
+    end
+  end
+
+  def draw_node(node, parent)
+    title = node.title
+    x, y  = node.position
+    parent_position = parent&.position
+
     radius = 10
-    rect_width = 60
-    rect_height = 30
+    rect_width = @font.measure(title) + radius * 2
+    rect_height = @font.metrics('linespace') + radius * 2
 
     # Use the extended create_rectangle method with rounded corners
     @canvas.create_rectangle(x - rect_width / 2, y - rect_height / 2,
                              x + rect_width / 2, y + rect_height / 2,
-                             radius: radius)#, fill: 'white', outline: 'black')
+                             radius: radius, fill: 'white', outline: 'black')
 
     # Draw the title
-    @canvas.create_text(x, y, text: title)
-
-    # Draw a line to the parent node if it exists
-    if parent_position
-      parent_x, parent_y = parent_position
-      @canvas.create_line(parent_x, parent_y, x, y)
-    end
+    down = @font.metrics('descent') / 2
+    @canvas.create_text(x, y + down, text: title, font: @font)
   end
 
   def run
