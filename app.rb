@@ -6,7 +6,7 @@ class App
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
 
-    @font = TkFont.new(family: 'Helvetica', size: 14)
+    @font = TkFont.new(family: 'Helvetica', size: 18)
 
     setup_canvas
 
@@ -29,8 +29,17 @@ class App
     @canvas.bind("Button-1") do |event|
       @canvas.scan_mark(event.x, event.y)
     end
+
     @canvas.bind('B1-Motion') do |event|
       @canvas.scan_dragto(event.x, event.y)
+    end
+
+    @canvas.bind('Button-5') do |event|
+      @canvas.scale('all', event.x, event.y, 0.9, 0.9)
+    end
+
+    @canvas.bind('Button-4') do |event|
+      @canvas.scale('all', event.x, event.y, 1.1, 1.1)
     end
   end
 
