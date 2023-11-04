@@ -8,9 +8,8 @@ class App
 
     @font = TkFont.new(family: 'Helvetica', size: 14)
 
-    @canvas = TkCanvas.new(@root) do
-      pack(fill: 'both', expand: true)
-    end
+    setup_canvas
+
     @layout = layout.new(@screen_width, @screen_height)
   end
 
@@ -20,9 +19,33 @@ class App
     draw
   end
 
+  def setup_canvas
+    @canvas = TkCanvas.new(@root) do
+      pack(fill: 'both', expand: true)
+    end
+    @canvas.scrollregion('-3000 -3000 3000 3000')
+
+    # Move the view on mouse drag
+    @canvas.bind("Button-1") do |event|
+      @canvas.scan_mark(event.x, event.y)
+    end
+    @canvas.bind('B1-Motion') do |event|
+      @canvas.scan_dragto(event.x, event.y)
+    end
+  end
+
   def draw
+    draw_info
     draw_lines(@map.root)
     draw_nodes(@map.root)
+  end
+
+  def draw_info
+    mouse_info_label = TkcText.new(@canvas, 100, 100, text: 'X: Y: ', anchor: 'nw')
+
+    @canvas.bind('Motion') do |event|
+      mouse_info_label.text = "Mouse position: [#{event.x}, #{event.y}]"
+    end
   end
 
   def draw_lines(node)
