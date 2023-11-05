@@ -29,7 +29,7 @@ class Mindmap
   private
 
   def create_node(hash, parent: nil, depth: 0)
-    node = Node.new(hash["title"], parent, depth)
+    node = Node.new("#{hash["title"]} - depth: #{depth}", parent, depth)
     if hash["children"]
       hash["children"].each do |child_hash|
         child_node = create_node(child_hash, parent: node, depth: depth + 1)

@@ -1,5 +1,6 @@
 class Node
-  attr_accessor :title, :children, :position, :parent, :depth
+  attr_accessor :title, :children, :position, :parent,
+                :depth, :color, :font
 
   def initialize(title, parent = nil, depth = 0)
     @title = title

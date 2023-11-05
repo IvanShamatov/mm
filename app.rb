@@ -15,7 +15,7 @@ class App
   end
 
   def setup_canvas
-    @canvas = TkCanvas.new(@root) do
+    @canvas = TkCanvas.new(@root, background: 'white') do
       pack(fill: 'both', expand: true)
     end
     @canvas.scrollregion('-3000 -3000 3000 3000')
