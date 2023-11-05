@@ -1,25 +1,30 @@
+require 'forwardable'
+
+require_relative 'layout'
+require_relative 'theme'
+require_relative 'node'
+
 class Mindmap
-  class Node
-    attr_accessor :title, :children, :position, :parent, :depth
-
-    def initialize(title, parent = nil, depth = 0)
-      @title = title
-      @children = []
-      @position = []
-      @parent = parent
-      @depth = depth
-    end
-
-    def add_child(child_node)
-      @children << child_node
-    end
-  end
+  extend Forwardable
 
   attr_reader :root
 
   def initialize(hash)
     @root = create_node(hash)
   end
+
+  def layout=(layout)
+    layout.map = self
+    @layout = layout
+  end
+
+  def theme=(theme)
+    theme.map = self
+    @theme = theme
+  end
+
+  def_delegator :@layout, :calculate_positions
+  def_delegator :@theme, :draw
 
   private
 

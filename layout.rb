@@ -1,17 +1,17 @@
 class Layout
   attr_reader :positions
+  attr_accessor :map
 
-  def initialize(canvas_width, canvas_height)
-    @canvas_width = canvas_width
-    @canvas_height = canvas_height
+  def initialize
     @positions = {}
     @initial_radius = 400
   end
 
-  def calculate_positions(mindmap)
-    @mindmap = mindmap
-    root_pos = [@canvas_width / 2, @canvas_height / 2]
-    place_node(@mindmap.root, root_pos, 0)
+  def calculate_positions(canvas_width, canvas_height)
+    exit(1) unless map
+
+    root_pos = [canvas_width / 2, canvas_height / 2]
+    place_node(map.root, root_pos, 0)
     @positions
   end
 
