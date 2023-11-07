@@ -2,6 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "tk"
+gem "tk", github: 'ruby/tk'
 gem "yaml"
 gem "pry"

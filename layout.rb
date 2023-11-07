@@ -1,41 +1,70 @@
+require 'pry'
+
 class Layout
+  LayoutException = Class.new(StandardError)
+
   attr_reader :positions
   attr_accessor :map
 
   def initialize
     @positions = {}
-    @initial_radius = 400
+    @l1_xshift = 250
+    @l2_xshift = 220
+    @l1_yshift = 100
+    @l2_yshift = 50
   end
 
-  def calculate_positions(canvas_width, canvas_height)
-    exit(1) unless map
+  def calculate_positions(width, height)
+    raise LayoutException, 'Map not loaded' unless map
 
-    root_pos = [canvas_width / 2, canvas_height / 2]
-    place_node(map.root, root_pos, 0)
-    @positions
+    directionize(map.root)
+    place_node(map.root, width / 2, height / 2)
   end
 
   private
 
-  def place_node(node, position, depth)
-    node.position = position
-    @positions[node] = position
+  def directionize(node, direction = nil)
+    if direction.nil? # root
+      left_branch_size = node.children.size / 2
 
-    child_nodes = node.children
-    if child_nodes.any?
-      angle_increment = 360.0 / child_nodes.count
-      radius = @initial_radius / (depth + 1)
+      node.children[0..left_branch_size].each do |child|
+        directionize(child, :left)
+      end
 
-      child_nodes.each_with_index do |child, index|
-        angle = angle_increment * index
-        x = position[0] + radius * Math.cos(deg_to_rad(angle))
-        y = position[1] + radius * Math.sin(deg_to_rad(angle))
-        place_node(child, [x, y], depth + 1)
+      node.children[left_branch_size..].each do |child|
+        directionize(child, :right)
+        child.side = :right
+      end
+    else
+      node.side = direction
+      node.children.each { directionize(_1, direction) }
+    end
+  end
+
+  def place_node(node, x, y)
+    node.xpos, node.ypos = x, y
+    @positions[node] = [x, y]
+
+    node.children.group_by { _1.side }.each do |side, nodes|
+      start_y = y - ((nodes.count - 1) * yshift(node)) / 2
+
+      nodes.each_with_index do |child, index|
+        new_y = start_y + index * yshift(node)
+        new_x = if side == :left
+                  x - xshift(node)
+                else
+                  x + xshift(node)
+                end
+        place_node(child, new_x, new_y)
       end
     end
   end
 
-  def deg_to_rad(degrees)
-    degrees * Math::PI / 180
+  def yshift(node)
+    node.depth >= 1 ? @l2_yshift : @l1_yshift
+  end
+
+  def xshift(node)
+    node.depth >= 1 ? @l2_xshift : @l1_xshift
   end
 end

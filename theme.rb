@@ -1,4 +1,6 @@
 class Theme
+  ThemeException = Class.new(StandardError)
+
   attr_accessor :map
 
   COLORS = [:red, :orange, :yellow, :green, :blue, :violet]
@@ -43,7 +45,7 @@ class Theme
   end
 
   def draw(canvas)
-    exit(1) unless map
+    raise ThemeException, 'Map not loaded' unless map
 
     setup_nodes_colors(map.root)
     setup_nodes_fonts(map.root)
@@ -74,22 +76,22 @@ class Theme
   end
 
   def draw_node(node, parent)
-    title = node.title
+    text = node.text
     x, y  = node.position
     parent_position = parent&.position
 
     radius = node_radius(node)
 
-    rect_width = node.font.measure(title) + radius * 2
+    rect_width = node.font.measure(text) + radius * 2
     rect_height = node.font.metrics('linespace') + radius * 2
 
     @canvas.create_rectangle(x - rect_width / 2, y - rect_height / 2,
       x + rect_width / 2, y + rect_height / 2,
       radius: radius, fill: background_color(node))
 
-    # Draw the title
+    # Draw the text
     down = node.font.metrics('descent') / 2
-    @canvas.create_text(x, y + down, text: title, font: node.font, fill: text_color(node))
+    @canvas.create_text(x, y + down, text: text, font: node.font, fill: text_color(node))
   end
 
   def setup_nodes_colors(node)

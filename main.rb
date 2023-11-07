@@ -1,6 +1,5 @@
-require 'tk'
-require 'yaml'
-require 'pry'
+require 'bundler'
+Bundler.require
 
 require_relative 'canvas_extension'
 require_relative 'mindmap'
@@ -12,7 +11,7 @@ class TkCanvas
 end
 
 # Load YAML file and start the application
-yaml_file = 'map.yml'
+yaml_file = 'default_map.yml'
 data = YAML.load_file(yaml_file)
 map = Mindmap.new(data)
 map.layout = Layout.new
@@ -21,4 +20,3 @@ map.theme = Theme.new
 app = App.new
 app.load_map(map)
 app.run
-

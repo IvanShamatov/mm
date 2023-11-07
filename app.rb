@@ -5,7 +5,36 @@ class App
     @screen_width = @root.winfo_screenwidth
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
+
+    setup_menu
     setup_canvas
+    setup_statusbar
+  end
+
+  def setup_menu
+    # Create a menu
+    menu = TkMenu.new(@root)
+
+    # Create a File menu
+    file_menu = TkMenu.new(menu, tearoff: 0)
+    menu.add('cascade', menu: file_menu, label: 'File')
+
+    # Add menu items to the File menu
+    file_menu.add('command', label: 'New', command: proc { puts 'New selected' })
+    file_menu.add('command', label: 'Open', command: proc { puts 'Open selected' })
+    file_menu.add('command', label: 'Exit', command: proc { @root.destroy })
+
+    @root.menu(menu)
+  end
+
+  def setup_statusbar
+    # Create a frame at the bottom for the status bar
+    status_frame = TkFrame.new(@root)
+    status_frame.pack(side: 'bottom', fill: 'x')
+
+    # Create a label widget to display status messages
+    @status_label = TkLabel.new(status_frame, text: "Ready", relief: 'sunken', anchor: 'w')
+    @status_label.pack(fill: 'x')
   end
 
   def load_map(map)

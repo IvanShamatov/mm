@@ -1,3 +1,9 @@
+GIT
+  remote: https://github.com/ruby/tk.git
+  revision: d86254ed94ae249437bf97315f68c46ea04d5388
+  specs:
+    tk (0.4.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -6,7 +12,6 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    tk (0.4.0)
     yaml (0.2.0)
 
 PLATFORMS
@@ -14,7 +19,7 @@ PLATFORMS
 
 DEPENDENCIES
   pry
-  tk
+  tk!
   yaml
 
 BUNDLED WITH
