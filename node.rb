@@ -1,6 +1,6 @@
 class Node
   attr_accessor :text, :children, :parent, :depth,
-                :xpos, :ypos, :side, :color, :font
+                :xpos, :ypos, :side, :color, :font, :weight
 
 
   # width_l1 = 33 symbols
@@ -15,6 +15,7 @@ class Node
     @ypos
     @parent = parent
     @depth = depth
+    @weight = 1
   end
 
   def add_child(child_node)

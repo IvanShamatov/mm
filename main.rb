@@ -11,7 +11,7 @@ class TkCanvas
 end
 
 # Load YAML file and start the application
-yaml_file = 'default_map.yml'
+yaml_file = 'map.yml'
 data = YAML.load_file(yaml_file)
 map = Mindmap.new(data)
 map.layout = Layout.new

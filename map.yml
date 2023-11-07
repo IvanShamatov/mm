@@ -1,24 +1,24 @@
-title: "Root"
+text: "Root"
 children:
-  - title: "Child 1"
+  - text: "Child 1"
     children:
-      - title: "Grandchild 1"
-      - title: "Grandchild 2"
-  - title: "Child 2"
-  - title: "Child 3"
+      - text: "Grandchild 1"
+      - text: "Grandchild 2"
+  - text: "Child 2"
+  - text: "Child 3"
     children:
-      - title: "Grand3Child1"
+      - text: "Grand3Child1"
         children:
-          - title: "wow"
-          - title: "such mindmap"
-          - title: "so layout"
-      - title: "Grand3Child2"
-  - title: "Child 4"
-  - title: "Child 5"
-  - title: "Child 6"
+          - text: "wow"
+          - text: "such mindmap"
+          - text: "so layout"
+      - text: "Grand3Child2"
+  - text: "Child 4"
+  - text: "Child 5"
+  - text: "Child 6"
     children:
-      - title: Grand6Child1
+      - text: Grand6Child1
         children:
-          - title: "one more"
-          - title: "two more"
-          - title: "three more"
+          - text: "one more"
+          - text: "two more"
+          - text: "three more"
