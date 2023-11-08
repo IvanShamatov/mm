@@ -1,6 +1,6 @@
-title: "Central Topic"
+text: "Central Topic"
 children:
-  - title: "Main topic 1"
-  - title: "Main topic 2"
-  - title: "Main topic 3"
-  - title: "Main topic 4"
+  - text: "Main topic 1"
+  - text: "Main topic 2"
+  - text: "Main topic 3"
+  - text: "Main topic 4"

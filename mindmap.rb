@@ -7,9 +7,10 @@ require_relative 'node'
 class Mindmap
   extend Forwardable
 
-  attr_reader :root, :list
+  attr_reader :title, :root, :list
 
-  def initialize(hash)
+  def initialize(title, hash)
+    @title = title
     @list = []
     @root = create_node(hash)
     calculate_weights
@@ -31,7 +32,7 @@ class Mindmap
   private
 
   def create_node(hash, parent: nil, depth: 0)
-    node = Node.new("#{hash["text"]}", parent, depth)
+    node = Node.new(hash['text'], parent, depth)
     @list << node
     if hash["children"]
       hash["children"].each do |child_hash|

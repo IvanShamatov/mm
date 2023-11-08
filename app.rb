@@ -1,14 +1,22 @@
-# Define the main application class
+require_relative 'mindmap'
+# Extend the TkCanvas class with our new module methods
+require_relative 'canvas_extension'
+class TkCanvas
+  include TkCanvasExtensions
+end
+
 class App
   def initialize
     @root = TkRoot.new { title "Ruby Mind Map" }
     @screen_width = @root.winfo_screenwidth
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
-
     setup_menu
     setup_canvas
+    @current_map_id = TkVariable.new { 0 }
+    @loaded_maps = []
     setup_statusbar
+    load_map('default_map.yml')
   end
 
   def setup_menu
@@ -20,8 +28,8 @@ class App
     menu.add('cascade', menu: file_menu, label: 'File')
 
     # Add menu items to the File menu
-    file_menu.add('command', label: 'New', command: proc { puts 'New selected' })
-    file_menu.add('command', label: 'Open', command: proc { puts 'Open selected' })
+    # file_menu.add('command', label: 'New', command: proc { puts 'New selected' })
+    file_menu.add('command', label: 'Open', command: proc { load_map })
     file_menu.add('command', label: 'Exit', command: proc { @root.destroy })
 
     @root.menu(menu)
@@ -31,14 +39,30 @@ class App
     # Create a frame at the bottom for the status bar
     status_frame = TkFrame.new(@root)
     status_frame.pack(side: 'bottom', fill: 'x')
-
-    # Create a label widget to display status messages
-    @status_label = TkLabel.new(status_frame, text: "Ready", relief: 'sunken', anchor: 'w')
-    @status_label.pack(fill: 'x')
   end
 
-  def load_map(map)
-    @map = map
+  def switch_maps
+    @canvas.delete('all')
+    @map = @loaded_maps[@current_map_id]
+    @map.layout = Layout.new
+    @map.theme = Theme.new
+    @map.calculate_positions(@screen_width, @screen_height)
+    @map.draw(@canvas)
+  end
+
+  def load_map(filename = Tk::getOpenFile)
+    @canvas.delete('all')
+
+    data = YAML.load_file(filename)
+    @map = Mindmap.new(File.basename(filename, '.yml'), data)
+    @loaded_maps << @map
+    index = @loaded_maps.size - 1
+    Tk::Tile::RadioButton
+      .new(@status_frame, text: @map.title, variable: @current_map_id, value: index)
+      .pack(side: :left).command { switch_maps }
+
+    @map.layout = Layout.new
+    @map.theme = Theme.new
     @map.calculate_positions(@screen_width, @screen_height)
     @map.draw(@canvas)
   end

@@ -76,7 +76,7 @@ class Theme
   end
 
   def draw_node(node, parent)
-    text = "#{node.text}\ndepth: #{node.depth}\nweight: #{node.weight}"
+    text = node.text # "#{node.text} depth: #{node.depth} weight: #{node.weight}"
 
     x, y  = node.position
     parent_position = parent&.position
