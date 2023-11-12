@@ -14,16 +14,22 @@ class App
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
     setup_menu
-    setup_canvas
-    @current_map_id = TkVariable.new { 0 }
-    @loaded_maps = []
+    setup_views
     setup_statusbar
     load_map('default_map.yml')
   end
 
+  def setup_views
+    content = Tk::Tile::Frame.new(@root)
+
+    setup_editor(content)
+    setup_canvas(content)
+    content.pack(fill: 'both', expand: true)
+  end
+
   def setup_menu
     # Create a menu
-    menu = TkMenu.new(@root)
+    menu = TkMenu.new(@root, relief: 'flat')
 
     # Create a File menu
     file_menu = TkMenu.new(menu, tearoff: 0)
@@ -37,7 +43,37 @@ class App
     @root.menu(menu)
   end
 
+  def setup_editor(content)
+    @editor_frame =
+      Tk::Tile::Frame.new(content, width: @screen_width / 3)
+        .pack(side: :left, fill: 'both')
+
+    @editor = TkText.new(@editor_frame, font: TkFont.new(family: 'Helvetica', size: 14), relief: 'flat', border: 1)
+                    .pack(side: :left, fill: 'both')
+
+    @redraw = Tk::Tile::Button.new(@editor_frame, text: 'Redraw', command: proc{ redraw })
+                    .pack(side: :left)
+  end
+
+  def redraw(data = nil, filename= 'filename.yml')
+    data = YAML.load(@editor.get('1.0', 'end')) if data.nil?
+    @canvas.delete('all')
+    @map = Mindmap.new(File.basename(filename, '.yml'), data)
+    @loaded_maps << @map
+    index = @loaded_maps.size - 1
+    Tk::Tile::RadioButton
+      .new(@status_frame, text: @map.title, variable: @current_map_id, value: index)
+      .pack(side: :left).command { switch_maps }
+
+    @map.layout = Layout.new
+    @map.theme = Theme.new
+    @map.calculate_positions(@screen_width * 2 / 3, @screen_height)
+    @map.draw(@canvas)
+  end
+
   def setup_statusbar
+    @current_map_id = TkVariable.new { 0 }
+    @loaded_maps = []
     # Create a frame at the bottom for the status bar
     status_frame = Tk::Tile::Frame.new(@root)
     status_frame.pack(side: 'bottom', fill: 'x')
@@ -53,26 +89,15 @@ class App
   end
 
   def load_map(filename = Tk::getOpenFile)
-    @canvas.delete('all')
-
     data = YAML.load_file(filename)
-    @map = Mindmap.new(File.basename(filename, '.yml'), data)
-    @loaded_maps << @map
-    index = @loaded_maps.size - 1
-    Tk::Tile::RadioButton
-      .new(@status_frame, text: @map.title, variable: @current_map_id, value: index)
-      .pack(side: :left).command { switch_maps }
-
-    @map.layout = Layout.new
-    @map.theme = Theme.new
-    @map.calculate_positions(@screen_width, @screen_height)
-    @map.draw(@canvas)
+    @text = File.read(filename)
+    @editor.insert(1.0, @text)
+    redraw(data, filename)
   end
 
-  def setup_canvas
-    @canvas = TkCanvas.new(@root, background: 'white') do
-      pack(fill: 'both', expand: true)
-    end
+  def setup_canvas(content)
+    @canvas = TkCanvas.new(content, background: 'white')
+                      .pack(fill: 'both', expand: true)
     @canvas.scrollregion('-3000 -3000 3000 3000')
 
     # Move the view on mouse drag

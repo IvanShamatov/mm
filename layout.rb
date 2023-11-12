@@ -8,8 +8,8 @@ class Layout
 
   def initialize
     @positions = {}
-    @l1_xshift = 250
-    @l2_xshift = 220
+    @l1_xshift = 150
+    @l2_xshift = 150
     @l1_yshift = 100
     @l2_yshift = 50
   end
