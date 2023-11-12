@@ -8,6 +8,8 @@ end
 class App
   def initialize
     @root = TkRoot.new { title "Ruby Mind Map" }
+    Tk.tk_call('source', 'forest-dark.tcl')
+    Tk::Tile::Style.theme_use "forest-dark"
     @screen_width = @root.winfo_screenwidth
     @screen_height = @root.winfo_screenheight
     @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
@@ -37,7 +39,7 @@ class App
 
   def setup_statusbar
     # Create a frame at the bottom for the status bar
-    status_frame = TkFrame.new(@root)
+    status_frame = Tk::Tile::Frame.new(@root)
     status_frame.pack(side: 'bottom', fill: 'x')
   end
 
