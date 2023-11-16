@@ -3,5 +3,5 @@ require 'bundler'
 Bundler.require
 require 'tkextlib/tile'
 
-require_relative 'app.rb'
-App.new.run
+require_relative 'main_controller'
+MainController.new.run
