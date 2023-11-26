@@ -1,6 +1,8 @@
 Tk.tk_call('source', 'forest-dark.tcl')
 Tk::Tile::Style.theme_use "forest-dark"
 
+require_relative 'pitch_widget'
+
 class App < TkRoot
 
   def initialize(*args)
@@ -41,7 +43,11 @@ class App < TkRoot
 
     right_frame = Tk::Tile::Frame.new(@controls_frame, padding: 10).pack(side: 'right')
     Tk::Tile::Button.new(right_frame, text: 'Zen Mode', command: {}).pack(side: 'left', padx: 5)
-    Tk::Tile::Button.new(right_frame, text: 'Pitch Mode', command: {}).pack(side: 'left', padx: 5)
+    Tk::Tile::Button.new(right_frame, text: 'Pitch Mode', command: proc { pitch }).pack(side: 'left', padx: 5)
+  end
+
+  def pitch
+    PitchWidget.new(title: "Pitch Mode")
   end
 
   def setup_content_widget

@@ -45,8 +45,7 @@ end# Custom Canvas Widget
 class CustomCanvas < TkCanvas
   def initialize(parent)
     super(parent)
-    @text_id = nil
-    @rect_id = nil
+    @selected_node = nil
     @font = TkFont.new(family: 'Helvetica', size: 14)
     bind_events
   end
