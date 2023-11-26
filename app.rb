@@ -1,128 +1,62 @@
-require_relative 'mindmap'
-# Extend the TkCanvas class with our new module methods
-require_relative 'canvas_extension'
-class TkCanvas
-  include TkCanvasExtensions
-end
+Tk.tk_call('source', 'forest-dark.tcl')
+Tk::Tile::Style.theme_use "forest-dark"
 
-class App
-  def initialize
-    @root = TkRoot.new { title "Ruby Mind Map" }
-    Tk.tk_call('source', 'forest-dark.tcl')
-    Tk::Tile::Style.theme_use "forest-dark"
-    @screen_width = @root.winfo_screenwidth
-    @screen_height = @root.winfo_screenheight
-    @root.geometry("#{@screen_width}x#{@screen_height}+0+0")
+class App < TkRoot
+
+  def initialize(*args)
+    super
+    title("Ruby mindmap")
+    geometry("#{winfo_screenwidth}x#{winfo_screenheight}+0+0")
+
     setup_menu
-    setup_views
+    setup_controls
+    @current_content_widget = :map # :outliner
+    setup_content_widget
     setup_statusbar
-    load_map('default_map.yml')
   end
 
-  def setup_views
-    content = Tk::Tile::Frame.new(@root)
-
-    setup_editor(content)
-    setup_canvas(content)
-    content.pack(fill: 'both', expand: true)
-  end
+  private
 
   def setup_menu
-    # Create a menu
-    menu = TkMenu.new(@root, relief: 'flat')
+    menu = TkMenu.new(self, relief: 'flat')
 
     # Create a File menu
-    file_menu = TkMenu.new(menu, tearoff: 0)
+    file_menu = TkMenu.new(menu, tearoff: 0, relief: 'flat')
+    file_menu.add('command', label: 'New', command: {})
+    file_menu.add('command', label: 'Open', command: {})
+    file_menu.add('command', label: 'Save', command: {})
+    file_menu.add('command', label: 'Exit', command: proc { destroy })
+
     menu.add('cascade', menu: file_menu, label: 'File')
-
-    # Add menu items to the File menu
-    # file_menu.add('command', label: 'New', command: proc { puts 'New selected' })
-    file_menu.add('command', label: 'Open', command: proc { load_map })
-    file_menu.add('command', label: 'Exit', command: proc { @root.destroy })
-
-    @root.menu(menu)
+    menu(menu)
   end
 
-  def setup_editor(content)
-    @editor_frame =
-      Tk::Tile::Frame.new(content, width: @screen_width / 3)
-        .pack(side: :left, fill: 'both')
+  def setup_controls
+    @controls_frame = Tk::Tile::Frame.new
+    @controls_frame.pack(fill: 'x')
 
-    @editor = TkText.new(@editor_frame, font: TkFont.new(family: 'Helvetica', size: 14), relief: 'flat', border: 1)
-                    .pack(side: :left, fill: 'both')
+    center_frame = Tk::Tile::Frame.new(@controls_frame, padding: 10).pack(side: 'left')
+    Tk::Tile::Button.new(center_frame, text: 'Mindmap', command: {}).pack(side: 'left', padx: 5)
+    Tk::Tile::Button.new(center_frame, text: 'Outliner', command: {}).pack(side: 'left', padx: 5)
 
-    @redraw = Tk::Tile::Button.new(@editor_frame, text: 'Redraw', command: proc{ redraw })
-                    .pack(side: :left)
+    right_frame = Tk::Tile::Frame.new(@controls_frame, padding: 10).pack(side: 'right')
+    Tk::Tile::Button.new(right_frame, text: 'Zen Mode', command: {}).pack(side: 'left', padx: 5)
+    Tk::Tile::Button.new(right_frame, text: 'Pitch Mode', command: {}).pack(side: 'left', padx: 5)
   end
 
-  def redraw(data = nil, filename= 'filename.yml')
-    data = YAML.load(@editor.get('1.0', 'end')) if data.nil?
-    @canvas.delete('all')
-    @map = Mindmap.new(File.basename(filename, '.yml'), data)
-    @loaded_maps << @map
-    index = @loaded_maps.size - 1
-    Tk::Tile::RadioButton
-      .new(@status_frame, text: @map.title, variable: @current_map_id, value: index)
-      .pack(side: :left).command { switch_maps }
+  def setup_content_widget
+    @content_frame = Tk::Tile::Frame.new
+    @content_frame.pack(fill: 'both', expand: true)
 
-    @map.layout = Layout.new
-    @map.theme = Theme.new
-    @map.calculate_positions(@screen_width * 2 / 3, @screen_height)
-    @map.draw(@canvas)
+    @canvas = TkCanvas.new(@content_frame, background: 'white')
+                      .pack(fill: 'both', expand: true)
+    @canvas.scrollregion('-10000 -10000 10000 10000')
   end
 
   def setup_statusbar
-    @current_map_id = TkVariable.new { 0 }
-    @loaded_maps = []
-    # Create a frame at the bottom for the status bar
-    status_frame = Tk::Tile::Frame.new(@root)
-    status_frame.pack(side: 'bottom', fill: 'x')
-  end
-
-  def switch_maps
-    @canvas.delete('all')
-    @map = @loaded_maps[@current_map_id]
-    @map.layout = Layout.new
-    @map.theme = Theme.new
-    @map.calculate_positions(@screen_width, @screen_height)
-    @map.draw(@canvas)
-  end
-
-  def load_map(filename = Tk::getOpenFile)
-    data = YAML.load_file(filename)
-    @text = File.read(filename)
-    @editor.insert(1.0, @text)
-    redraw(data, filename)
-  end
-
-  def setup_canvas(content)
-    @canvas = TkCanvas.new(content, background: 'white')
-                      .pack(fill: 'both', expand: true)
-    @canvas.scrollregion('-3000 -3000 3000 3000')
-
-    # Move the view on mouse drag
-    @canvas.bind("Button-3") do |event|
-      @canvas.scan_mark(event.x, event.y)
-    end
-
-    @canvas.bind('B3-Motion') do |event|
-      @canvas.scan_dragto(event.x, event.y)
-    end
-
-    # Canvas zoom out
-    @canvas.bind('Button-5') do |event|
-      @canvas.scale('all', event.x, event.y, 0.9, 0.9)
-      # @font.size -= 1
-    end
-
-    # Canvas zoom in
-    @canvas.bind('Button-4') do |event|
-      @canvas.scale('all', event.x, event.y, 1.1, 1.1)
-      # @font.size += 1
-    end
-  end
-
-  def run
-    Tk.mainloop
+    @statusbar_frame = Tk::Tile::Frame.new(self)
+    @statusbar_frame.pack(side: 'bottom', fill: 'x')
+    Tk::Tile::Label.new(@statusbar_frame, text: 'Ready!')
+                   .pack(side: 'left')
   end
 end
